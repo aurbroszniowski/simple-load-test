@@ -38,7 +38,6 @@ public class SimpleLoad {
 
   public static void main(String[] args) {
     String tsaUrl = System.getProperty("tsa.url");
-    Integer cacheSize = Integer.parseInt(System.getProperty("cache.size", "1"));
     Long nbElements = Long.parseLong(System.getProperty("nbElements", "5000"));
 
     new SimpleLoad().runLoad(tsaUrl, nbElements);
