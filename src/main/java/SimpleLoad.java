@@ -72,7 +72,7 @@ public class SimpleLoad {
       Runner.setUp(
           Scenario.scenario("Warm up phase")
               .exec(
-                  put(Integer.class, Faker.class).using(keyGenerator, valueGenerator).sequentially().withWeight(1.0)
+                  put().using(keyGenerator, valueGenerator).sequentially().withWeight(1.0)
               ))
           .executed(times(nbElements))
           .config(concurrency)
@@ -88,10 +88,10 @@ public class SimpleLoad {
 
       StatisticsPeekHolder finalStats = Runner.setUp(
           Scenario.scenario("Test phase").exec(
-              put(Integer.class, Faker.class).withWeight(0.90)
+              put().withWeight(0.90)
                   .atRandom(Distribution.GAUSSIAN, 0, nbElements, nbElements / 10)
                   .using(keyGenerator, valueGenerator),
-              get(Integer.class, Faker.class).withWeight(0.10)
+              get().withWeight(0.10)
                   .atRandom(Distribution.GAUSSIAN, 0, nbElements, nbElements / 10)
                   .using(keyGenerator, valueGenerator)
           ))
