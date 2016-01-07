@@ -6,6 +6,7 @@ import io.rainfall.ehcache.statistics.EhcacheResult;
 import io.rainfall.ehcache2.CacheConfig;
 import io.rainfall.generator.FakerGenerator;
 import io.rainfall.generator.IntegerGenerator;
+import io.rainfall.generator.pojos.Person;
 import io.rainfall.generator.sequence.Distribution;
 import io.rainfall.statistics.StatisticsPeekHolder;
 import net.sf.ehcache.CacheManager;
@@ -15,20 +16,13 @@ import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.TerracottaClientConfiguration;
 import net.sf.ehcache.config.TerracottaConfiguration;
 
-import com.github.javafaker.Faker;
-
-import static io.rainfall.configuration.ReportingConfig.html;
-import static io.rainfall.configuration.ReportingConfig.report;
-import static io.rainfall.configuration.ReportingConfig.text;
-import static io.rainfall.ehcache.statistics.EhcacheResult.GET;
-import static io.rainfall.ehcache.statistics.EhcacheResult.MISS;
-import static io.rainfall.ehcache.statistics.EhcacheResult.PUT;
+import static io.rainfall.configuration.ReportingConfig.*;
+import static io.rainfall.ehcache.statistics.EhcacheResult.*;
 import static io.rainfall.ehcache2.Ehcache2Operations.get;
 import static io.rainfall.ehcache2.Ehcache2Operations.put;
 import static io.rainfall.execution.Executions.during;
 import static io.rainfall.execution.Executions.times;
 import static io.rainfall.unit.TimeDivision.minutes;
-import static java.util.concurrent.TimeUnit.MINUTES;
 import static net.sf.ehcache.config.MemoryUnit.GIGABYTES;
 
 /**
@@ -59,12 +53,13 @@ public class SimpleLoad {
           .defaultCache(new CacheConfiguration("default", 0).eternal(true))
           .cache(new CacheConfiguration().name("one")
               .maxBytesLocalHeap(1, GIGABYTES)
+              .eternal(true)
           .terracotta(new TerracottaConfiguration()));
       cacheManager = CacheManager.create(configuration);
 
       Ehcache one = cacheManager.getEhcache("one");
 
-      ConcurrencyConfig concurrency = ConcurrencyConfig.concurrencyConfig().threads(4).timeout(50, MINUTES);
+      ConcurrencyConfig concurrency = ConcurrencyConfig.concurrencyConfig().threads(4);
 
       IntegerGenerator keyGenerator = new IntegerGenerator();
       FakerGenerator valueGenerator = new FakerGenerator();
@@ -72,7 +67,7 @@ public class SimpleLoad {
       Runner.setUp(
           Scenario.scenario("Warm up phase")
               .exec(
-                  put(Integer.class, Faker.class).using(keyGenerator, valueGenerator).sequentially().withWeight(1.0)
+                  put(Integer.class, Person.class).using(keyGenerator, valueGenerator).sequentially().withWeight(1.0)
               ))
           .executed(times(nbElements))
           .config(concurrency)
@@ -88,10 +83,10 @@ public class SimpleLoad {
 
       StatisticsPeekHolder finalStats = Runner.setUp(
           Scenario.scenario("Test phase").exec(
-              put(Integer.class, Faker.class).withWeight(0.90)
+              put(Integer.class, Person.class).withWeight(0.10)
                   .atRandom(Distribution.GAUSSIAN, 0, nbElements, nbElements / 10)
                   .using(keyGenerator, valueGenerator),
-              get(Integer.class, Faker.class).withWeight(0.10)
+              get(Integer.class, Person.class).withWeight(0.90)
                   .atRandom(Distribution.GAUSSIAN, 0, nbElements, nbElements / 10)
                   .using(keyGenerator, valueGenerator)
           ))

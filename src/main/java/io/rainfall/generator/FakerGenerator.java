@@ -1,8 +1,8 @@
 package io.rainfall.generator;
 
-import io.rainfall.ObjectGenerator;
-
 import com.github.javafaker.Faker;
+import io.rainfall.ObjectGenerator;
+import io.rainfall.generator.pojos.Person;
 
 import java.util.Random;
 
@@ -11,10 +11,12 @@ import java.util.Random;
  *
  * @author Aurelien Broszniowski
  */
-public class FakerGenerator implements ObjectGenerator<Faker> {
+public class FakerGenerator implements ObjectGenerator<Person> {
 
-  public Faker generate(final Long aLong) {
-    return new Faker(new SeedRandom(aLong));
+  private Faker faker = new Faker();
+
+  public Person generate(final Long aLong) {
+    return Person.generateWithFaker(faker);
   }
 
   public String getDescription() {
