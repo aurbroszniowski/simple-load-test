@@ -76,5 +76,9 @@
         <enabled>true</enabled>
       </snapshots>
     </repository>
+    <repository>
+      <id>terracotta-releases</id>
+      <url>http://www.terracotta.org/download/reflector/releases</url>
+    </repository>
   </repositories>
 </project>
